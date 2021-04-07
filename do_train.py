@@ -1,20 +1,18 @@
 import os
+import random
+
+import numpy as np
+import torch
+from pytorch_pretrained_bert.modeling import BertPreTrainedModel
+from pytorch_pretrained_bert.optimization import BertAdam
+from pytorch_pretrained_bert.tokenization import BertTokenizer
+from torch.utils.data import TensorDataset, DataLoader, RandomSampler
+from torch.utils.data.distributed import DistributedSampler
 
 from CyclicLR import CyclicLR
 from MultiLabelConfig import get_argparse
 from functions import load_device, get_model, convert_examples_to_features, fit
-from processor import MultiLabelTextProcessor as Processor
-
-from pytorch_pretrained_bert.tokenization import BertTokenizer, WordpieceTokenizer
-from pytorch_pretrained_bert.modeling import BertForPreTraining, BertPreTrainedModel, BertModel, BertConfig, \
-  BertForMaskedLM, BertForSequenceClassification
-from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
-from torch.utils.data.distributed import DistributedSampler
-from pytorch_pretrained_bert.optimization import BertAdam
-
-import random
-import numpy as np
-import torch
+from processor.MultiLabelTextProcessor import MultiLabelTextProcessor as Processor
 
 
 def get_optimizer(args, model: BertPreTrainedModel, t_total: int, no_decay):
@@ -53,7 +51,7 @@ def get_optimizer(args, model: BertPreTrainedModel, t_total: int, no_decay):
 
 
 def main(args):
-  processor = Processor(args['bert_model'])
+  processor = Processor(['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate'])
   device, n_gpu = load_device(args['no_cuda'], args['local_rank'])
   args['train_batch_size'] = int(args['train_batch_size'] / args['gradient_accumulation_steps'])
   seed = args['seed']

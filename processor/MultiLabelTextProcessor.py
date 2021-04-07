@@ -1,56 +1,45 @@
 import os
 import pandas as pd
 
-from input import InputExample
+from input.InputExample import InputExample
 from processor.DataProcessor import DataProcessor
 
 
 class MultiLabelTextProcessor(DataProcessor):
 
-  def __init__(self, data_dir):
-    self.data_dir = data_dir
-    self.labels = None
+  def __init__(self, labels):
+    self.labels = labels
 
   def get_train_examples(self, data_dir, size=-1):
     filename = 'train.csv'
 
     if size == -1:
       data_df = pd.read_csv(os.path.join(data_dir, filename))
-      #             data_df['comment_text'] = data_df['comment_text'].apply(cleanHtml)
-      return self._create_examples(data_df, "train")
+      return self._create_examples(data_df)
     else:
       data_df = pd.read_csv(os.path.join(data_dir, filename))
-      #             data_df['comment_text'] = data_df['comment_text'].apply(cleanHtml)
-      return self._create_examples(data_df.sample(size), "train")
+      return self._create_examples(data_df.sample(size))
 
   def get_dev_examples(self, data_dir, size=-1):
-    """See base class."""
     filename = 'val.csv'
     if size == -1:
       data_df = pd.read_csv(os.path.join(data_dir, filename))
-      #             data_df['comment_text'] = data_df['comment_text'].apply(cleanHtml)
-      return self._create_examples(data_df, "dev")
+      return self._create_examples(data_df)
     else:
       data_df = pd.read_csv(os.path.join(data_dir, filename))
-      #             data_df['comment_text'] = data_df['comment_text'].apply(cleanHtml)
-      return self._create_examples(data_df.sample(size), "dev")
+      return self._create_examples(data_df.sample(size))
 
   def get_test_examples(self, data_dir, data_file_name, size=-1):
     data_df = pd.read_csv(os.path.join(data_dir, data_file_name))
-    #         data_df['comment_text'] = data_df['comment_text'].apply(cleanHtml)
     if size == -1:
-      return self._create_examples(data_df, "test")
+      return self._create_examples(data_df)
     else:
-      return self._create_examples(data_df.sample(size), "test")
+      return self._create_examples(data_df.sample(size))
 
   def get_labels(self):
-    """See base class."""
-    if self.labels == None:
-      self.labels = list(pd.read_csv(os.path.join(self.data_dir, "classes.txt"), header=None)[0].values)
     return self.labels
 
-  def _create_examples(self, df, set_type, labels_available=True):
-    """Creates examples for the training and dev sets."""
+  def _create_examples(self, df, labels_available=True):
     examples = []
     for (i, row) in enumerate(df.values):
       guid = row[0]
@@ -62,4 +51,3 @@ class MultiLabelTextProcessor(DataProcessor):
       examples.append(
         InputExample(guid=guid, text_a=text_a, labels=labels))
     return examples
-
